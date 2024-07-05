@@ -52,21 +52,17 @@ def getSOSByHourSingle():
     
     # Get data for restraunt N days ago
     # Lock for potential error with updater thread
-    newDataLock.acquire()
-    day = getSinceDate(
-        datetime.strftime((datetime.now() - timedelta(n)), "%Y-%m-%d"), restNmbr
-    )
-    newDataLock.release()
-    
-    # If data hasn't been fetched yet, try to update.  
-    if len(day) == 0:
-        update()
-        newDataLock.acquire()
+    with newDataLock:
         day = getSinceDate(
             datetime.strftime((datetime.now() - timedelta(n)), "%Y-%m-%d"), restNmbr
         )
-        newDataLock.release()
     
+        # If data hasn't been fetched yet, try to update.
+        if len(day) == 0:
+            update()
+            day = getSinceDate(
+                datetime.strftime((datetime.now() - timedelta(n)), "%Y-%m-%d"), restNmbr
+            )
     
     data = [hourheader]
     data.extend(day)
@@ -186,9 +182,8 @@ def listRest():
 
 def getDaySum(ymd, restNmbr):
     # Ensure data isn't being modified in updater thread
-    newDataLock.acquire()
-    day = getSinceDate(ymd, restNmbr)
-    newDataLock.release()
+    with newDataLock:
+        day = getSinceDate(ymd, restNmbr)
     order = 0
     line = 0
     serve = 0
@@ -284,15 +279,14 @@ def update():
     res = requests.get(
             "https://adlpunc01sa.blob.core.windows.net/uufg01ixtjvk/BRINK%20SOS%20HR%20DT%20REST%204%20WK/current.csv"
     )
+
     reader = csv.DictReader(
         res.content.decode("utf-16").splitlines(), dialect="excel", delimiter="|"
     )
 
-    newDataLock.acquire()
-    global restaraunts
-    restaraunts = splitDays(reader)
-    print("releasing!")
-    newDataLock.release()
+    with newDataLock:
+        global restaraunts
+        restaraunts = splitDays(reader)
     
 def updater():
     while True:
