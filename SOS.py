@@ -2,7 +2,7 @@
 # Culver's SOS Data Aggregator
 # (c) 2024 Matthew Francis
 
-import threading, csv, os, pause, requests, io
+import threading, csv, pause, requests, io
 
 from datetime import datetime, timedelta, timezone
 from flask import Flask, make_response, request, Response
