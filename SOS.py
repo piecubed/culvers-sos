@@ -233,17 +233,7 @@ def splitDays(reader: csv.DictReader):
         restaurantNumber = int(row["Rest Nbr"])
         daysByRest.setdefault(restaurantNumber, emptyEntriesByDate)
         entriesByDate = daysByRest[restaurantNumber]
-        entriesByDate[date].append([
-                row["Cal Dt"],
-                row["Hour Nbr"],
-                row["DT Avg Order Time"],
-                row["DT Avg Line Time"],
-                row["DT Avg Serve Time"],
-                row["DT Avg Total Time"],
-                row["DT Orders Over 5 Min"],
-                row["DT Orders Over 7 Min"],
-                row["DT Orders Over 10 Min"],
-                row["DT Order Qty"]])
+        entriesByDate[date].append([row[field] for field in hourheader])
 
     end = datetime.now()
     print(end-start)  
