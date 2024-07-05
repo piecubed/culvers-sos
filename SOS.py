@@ -223,54 +223,31 @@ def getDaySum(ymd, restNmbr):
 
 
 def splitDays(reader: csv.DictReader):
-    t = {}
     start = datetime.now()
-    
-    for row in reader:
-        try:
-            t[int(row["Rest Nbr"])].append(
-                [
-                    row["Cal Dt"],
-                    row["Hour Nbr"],
-                    row["DT Avg Order Time"],
-                    row["DT Avg Line Time"],
-                    row["DT Avg Serve Time"],
-                    row["DT Avg Total Time"],
-                    row["DT Orders Over 5 Min"],
-                    row["DT Orders Over 7 Min"],
-                    row["DT Orders Over 10 Min"],
-                    row["DT Order Qty"],
-                ]
-                )
-        except KeyError:
-            t[int(row["Rest Nbr"])] = [
-                    row["Cal Dt"],
-                    row["Hour Nbr"],
-                    row["DT Avg Order Time"],
-                    row["DT Avg Line Time"],
-                    row["DT Avg Serve Time"],
-                    row["DT Avg Total Time"],
-                    row["DT Orders Over 5 Min"],
-                    row["DT Orders Over 7 Min"],
-                    row["DT Orders Over 10 Min"],
-                    row["DT Order Qty"],
-                ]
 
-            
-      
     daysByRest = {}
-    
-    for restNmbr, rList in t.items():
-        daysByRest[restNmbr] = {}
-        for row in rList:
-            try:
-                daysByRest[restNmbr][row[0]].append(row)
-            except:
-                daysByRest[restNmbr][row[0]] = [row]
+    for row in reader:
+        emptyEntriesByDate = {}
+        date = row["Cal Dt"]
+        emptyEntriesByDate.setdefault(date, [])
+        restaurantNumber = int(row["Rest Nbr"])
+        daysByRest.setdefault(restaurantNumber, emptyEntriesByDate)
+        entriesByDate = daysByRest[restaurantNumber]
+        entriesByDate[date].append([
+                row["Cal Dt"],
+                row["Hour Nbr"],
+                row["DT Avg Order Time"],
+                row["DT Avg Line Time"],
+                row["DT Avg Serve Time"],
+                row["DT Avg Total Time"],
+                row["DT Orders Over 5 Min"],
+                row["DT Orders Over 7 Min"],
+                row["DT Orders Over 10 Min"],
+                row["DT Order Qty"]])
+
     end = datetime.now()
     print(end-start)  
     return daysByRest
-
 
 def getSinceDate(ymd, restNmbr):
     try:
